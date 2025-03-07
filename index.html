@@ -8,9 +8,8 @@
 </head>
 <body style="background-color: bisque;">
     <h1 style="text-align: center;">BST Visualization</h1>
-  
+    <input type="number" id="inputValue" placeholder="Enter value" style="padding: 5px; margin-right: 10px; font-size: 16px;"  class="input">
     <div class="btns">
-        <input type="number" id="inputValue" placeholder="Enter value" style="padding: 5px; margin-right: 10px; font-size: 16px;">
         <button class="button-42" onclick="clearTree()">Clear</button>
         <button class="button-42" onclick="insertNode()">Insert</button>
         <button class="button-42" onclick="deleteNode()">Delete</button>
@@ -19,7 +18,7 @@
         <button class="button-42" onclick="postOrderTraversal()">Post Order Traversal</button>
         <button class="button-42" onclick="levelOrderTraversal()">Level Traversal</button>
     </div>
-    <div id="treeContainer" style="width: 800px; height: 600px;"></div>
+    <div id="treeContainer" style="width: 1000px; height: 1000px;"></div>
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="./js/nodes.js"></script>
