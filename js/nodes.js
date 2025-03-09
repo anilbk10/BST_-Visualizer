@@ -3,9 +3,9 @@ const highlightedCircle = "lightblue";
 const circleText = "black";
 const highlightCircleText = "white";
 const radius = 20;
-const width = 1000;
+const width = 1300;
 const height = 1000;
-const xOffset = 100; // Horizontal spacing between nodes
+//const xOffset = 100; // Horizontal spacing between nodes
 const yOffset = 100; // Vertical spacing between levels;
 
 // Create SVG container
@@ -41,27 +41,23 @@ function calculateOffset(depth) {
 
 // Insert a node into the BST with dynamic spacing
 function insertNodeHelper(node, value, depth) {
-    let offset = calculateOffset(depth); 
-
-    if (node === null) {
-        return new Node(value, width / 2, 30 + depth * yOffset);
-    }
+    let offset = calculateOffset(depth);
 
     if (value < node.value) {
         if (node.left === null) {
-            node.left = new Node(value, node.x - offset, node.y + yOffset);
+            node.left = new Node(value, node.x - offset, node.y + yOffset);  // Insert at left
         } else {
             insertNodeHelper(node.left, value, depth + 1);
         }
     } else if (value > node.value) {
         if (node.right === null) {
-            node.right = new Node(value, node.x + offset, node.y + yOffset);
+            node.right = new Node(value, node.x + offset, node.y + yOffset);  // Insert at right
         } else {
             insertNodeHelper(node.right, value, depth + 1);
         }
     }
-    return node;
 }
+
 
 function updateNodePositions(node, depth, x, xOffset) {
     if (node) {
@@ -111,7 +107,7 @@ function updateVisualization() {
                 .attr("fill", circle)
                 .attr("stroke", "black");
 
-            // Draw node value
+            //  node value
             svg.append("text")
                 .attr("x", node.x)
                 .attr("y", node.y)
@@ -134,9 +130,19 @@ function insertNode() {
         alert("Please enter a valid number");
         return;
     }
+    const nodeToSearch = findNode(root, value);
+    if (nodeToSearch) {
+        
+        flickerNode(nodeToSearch, () => {
+            setTimeout(() => {
+                alert(`Node ${value} is already present`);
+            }, 200);
+        });
+    } 
     if (root === null) {
         root = new Node(value, width / 2, 30);
-    } else {
+    } 
+    else {
         insertNodeHelper(root, value, 1);
     }
     updateVisualization();
@@ -195,16 +201,13 @@ function deleteNodeHelper(node, value) {
     return node;
 }
 
-// Helper function to find a node by value
+// function to find a node by value
 function findNode(node, value) {
-    if (node === null) return null;
-    if (node.value === value) return node;
-    const left = findNode(node.left, value);
-    if (left) return left;
-    return findNode(node.right, value);
+    if (!node) return null;  
+    if (node.value === value) return node; 
+    return findNode(node.left, value) || findNode(node.right, value);
 }
 
-// Helper function to flicker a node
 function flickerNode(node, callback) {
     d3.select(`circle[cx='${node.x}'][cy='${node.y}']`)
         .transition()
@@ -212,13 +215,14 @@ function flickerNode(node, callback) {
         .attr("fill", "#90EE90") // Light green
         .transition()
         .duration(300)
-        .attr("fill", circle) // Revert to original color
-        .on("end", callback);
+        .attr("fill", circle)
+        .on("end", callback); // Execute callback when animation ends
 }
 
-// Delete node from user input with flickering effect
+// Delete node from user input 
 function deleteNode() {
     const value = getInputValue();
+    
     if (isNaN(value)) {
         alert("Please enter a valid number to delete");
         return;
@@ -228,18 +232,20 @@ function deleteNode() {
         return;
     }
 
-    // Find the node to delete
+    
+
     const nodeToDelete = findNode(root, value);
     if (!nodeToDelete) {
         alert("Node not found");
         return;
     }
 
-    // Flicker the node before deletion
-    flickerNode(nodeToDelete, () => {
-        root = deleteNodeHelper(root, value); // Perform deletion after flicker
-        updateVisualization(); // Update visualization after deletion
-    });
+    flickerNode(nodeToDelete);
+    setTimeout(() => {
+        root = deleteNodeHelper(root, value);
+        updateVisualization();
+    }, 1000); 
+    
 }
 
 // Search node function with flickering effect
@@ -253,43 +259,38 @@ function searchNode() {
         alert("Tree is empty, nothing to search");
         return;
     }
-
-    // Find the node to search
     const nodeToSearch = findNode(root, value);
     if (nodeToSearch) {
-        // Flicker the found node
+        
         flickerNode(nodeToSearch, () => {
-            alert(`Node ${value} found!`);
+            setTimeout(() => {
+                alert(`Node ${value} found!`);
+            }, 500);
         });
     } else {
         alert(`Node ${value} not found!`);
     }
 }
 
+
 function animateTraversal(nodes) {
-    let index = 0;
-
-    function highlightNext() {
-        if (index < nodes.length) {
-            let node = nodes[index];
-
-            // Flickering effect
-            d3.select(`circle[cx='${node.x}'][cy='${node.y}']`)
-                .transition()
-                .duration(300)
-                .attr("fill", "#90EE90") // Light green
-                .transition()
-                .duration(300)
-                .attr("fill", circle) // Revert to original color
-
-            index++;
-            setTimeout(highlightNext, 600); // Delay for next node
+    let count = 0;
+    let len =nodes.length;
+    
+    function highlightThis() {
+        if (count <len ) {
+            let node = nodes[count];
+            
+            flickerNode(node, () => {
+                count++;
+                setTimeout(highlightThis, 200); // wait for next node 
+            });
         } else {
             alert("Traversal Order: " + nodes.map(n => n.value).join(" → "));
         }
     }
 
-    highlightNext();
+    highlightThis();
 }
 
 // In-order Traversal (Left, Root, Right)
@@ -303,7 +304,7 @@ function inOrderTraversalHelper(node, nodes) {
 
 function inOrderTraversal() {
     let nodes = [];
-    inOrderTraversalHelper(root, nodes);
+    inOrderTraversalHelper(root, nodes); //populates nodes
     animateTraversal(nodes);
 }
 
@@ -337,7 +338,7 @@ function postOrderTraversal() {
     animateTraversal(nodes);
 }
 
-// Level-order Traversal (BFS)
+// Level-order Traversal 
 function levelOrderTraversal() {
     let queue = [root];
     let nodes = [];
@@ -348,7 +349,6 @@ function levelOrderTraversal() {
         if (node.left) queue.push(node.left);
         if (node.right) queue.push(node.right);
     }
-
     animateTraversal(nodes);
 }
 
